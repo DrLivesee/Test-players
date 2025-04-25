@@ -1,105 +1,53 @@
 <template>
-  <h1>Редактирование игроков</h1>
+  <h2 class="title">Редактирование игроков</h2>
 
-  <div
-    v-for="item in usersLife"
-    :key="item.name"
-    class="row"
-  >
-      <input id="name" v-model="item.name">
-      <a class="button" href="#" @click.prevent="minusLife(item)">-</a>
-      <span class="lifeCount">{{item.life}}</span>
-      <a class="button" href="#" @click.prevent="plusLife(item)">+</a>
+  <div class="row">
+    <EditPlayersItem
+      v-for="player in playersList"
+      :key="player.id"
+      :player="player"
+      @updateName="updateName"
+      @updateLife="updateLife"
+    />
   </div>
-  
-  <h2>Рейтинг</h2>
-  <table>
-    <tr
-    v-for="(item, index) in rating"
-    :key="index"
-    >
-    <td v-text="`${index + 1}`"></td>
-    <td v-text="`У игрока <b>${item.name}</b> ${item.life} жизней`"></td>
-  </tr>
-  </table>
 </template>
 
-<script>
-export default {
-  name: 'LifeCounter',
+<script setup>
+import { defineProps, defineEmits } from "vue";
+import { EditPlayersItem } from ".";
 
-  props: {
-    playersList: {
-      type: Array
-    },
+const props = defineProps({
+  playersList: {
+    type: Array,
   },
-  
-  data () {
-    return {
-    };
-  },
-  
-  created() {
-    for (let i = 0; i < this.playersList; i++) {
-      this.usersLife.push({
-        name: this.playersList.name,
-        life: this.playersList.life
-      });
-    }
-  },
-  
-  computed: {
-    usersLife () {
-      return [...this.playersList]
-    },
-    rating () {
-      let places = this.usersLife;
-  
-      places.sort((a, b) => b.life - a.life);
-     
-      return places;
-    }
-  },
-  
-  methods: {
-    plusLife (item) {
-      item.life++;
-    },
+});
 
-    minusLife (item) {
-      item.life--;
-    }
-  },
-}
+const emit = defineEmits(["update-player"]);
+
+const updateName = (id, newName) => {
+  const player = props.playersList.find((p) => p.id === id);
+  if (player) {
+    emit("update-player", { ...player, name: newName });
+  }
+};
+
+const updateLife = (id, delta) => {
+  const player = props.playersList.find((p) => p.id === id);
+  if (player) {
+    const newLife = player.life + delta;
+    emit("update-player", { ...player, life: newLife });
+  }
+};
 </script>
 
-<style lang="scss">
-    .row {
-        display: flex;
-        align-items: center;
-        margin-top: 20px;
-
-        input {
-            margin-right: 12px;
-            width: 100%;
-            height: 24px;
-        }
-
-        .button {
-          width: 24px;
-          height: 24px;
-        }
-
-        .life {
-          margin: 0 12px;
-        }
-    }
-
-    table {
-      width: 100%;
-
-      td {
-        border: 1px solid #2c3e50;
-      }
-    }
+<style lang="scss" scoped>
+.title {
+  margin-bottom: 24px;
+}
+.row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
 </style>

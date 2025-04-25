@@ -1,74 +1,86 @@
 <template>
-    <h1>Добавить нового игрока</h1>
-    <div class="row">
-        <input id="name" type="text" v-model="players_name" placeholder="Имя"/>
-        <input id="life" type="number" v-model="players_life" placeholder="Жизней" />
-        <button type="button" v-on:click="createPlayer">Создать</button>
-    </div>
+  <h2 class="title">Добавить нового игрока</h2>
+  <div class="row">
+    <input
+      class="input name"
+      type="text"
+      v-model="playersName"
+      placeholder="Имя"
+    />
+    <input
+      class="input life"
+      type="number"
+      v-model="playersLife"
+      placeholder="Жизней"
+    />
+    <button class="button" type="button" @click="createPlayer">Создать</button>
+  </div>
 </template>
 
+<script setup>
+import { ref, defineEmits } from "vue";
 
-<script>
-export default {
-  name: 'CreatePlayer',
-  
-  data () {
-    return {
-      players: [],
-      players_name: '',
-      players_life: ''
-    };
-  },
-  
-  methods: {
-    createPlayer() {
+const playersName = ref("");
+const playersLife = ref(null);
 
-        if(this.players_name === '' || this.players_name === undefined) {
-            alert('Укажите имя');
-            return;
-        }
+const emit = defineEmits(["create-player"]);
 
-        if(this.players_life === '' || this.players_life === undefined) {
-            alert('Укажите количество жизней');
-            return;
-        }
+const checkParameters = () => {
+  if (!playersName.value) {
+    alert("Укажите имя");
+    return false;
+  }
 
-        if(this.players_life <= 0) {
-            alert('Значение не может быть больше нуля');
-            return;
-        }
+  if (!playersLife.value) {
+    alert("Укажите количество жизней");
+    return false;
+  }
 
-        this.players.push({
-            'name': this.players_name,
-            'life': this.players_life,
-        })
+  if (playersLife.value <= 0) {
+    alert("Значение не может быть меньше либо равно нулю");
+    return false;
+  }
 
-        this.players_name = '';
-        this.players_life = '';
+  return true;
+};
 
-        this.$emit('players-list', this.players);
-    }
-  },
+const clearPlayer = () => {
+  playersName.value = "";
+  playersLife.value = null;
+};
+
+const generateRandomId = () => {
+  return Math.floor(1000000000 + Math.random() * 9000000000);
 }
+
+const createPlayer = () => {
+  if (!checkParameters()) return;
+
+  const newPlayer = { name: playersName.value, life: playersLife.value, id: generateRandomId()};
+
+  emit("create-player", newPlayer);
+
+  clearPlayer();
+};
 </script>
 
-<style lang="scss">
-    .row {
-        display: flex;
-        margin-top: 20px;
+<style lang="scss" scoped>
+.title {
+  margin-bottom: 24px;
+}
+.row {
+  display: flex;
+  align-items: center;
 
-        input {
-            margin-right: 12px;
-            width: 100%;
-            height: 24px;
-        }
+  .input {
+    margin-right: 12px;
+  }
+  .life {
+    max-width: 120px;
+  }
 
-        button {
-            width: 70px;
-        }
-    }
-
-    #life {
-        width: 70px;
-    }
+  .button {
+    max-width: 90px;
+  }
+}
 </style>
